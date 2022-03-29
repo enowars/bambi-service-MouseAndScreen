@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  mouseandscreen:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - "./data:/app/data"
+      - "./usersprites:/app/wwwroot/usersprites"

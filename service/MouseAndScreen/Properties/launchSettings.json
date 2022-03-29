@@ -1,0 +1,13 @@
+﻿{
+  "profiles": {
+    "MouseAndScreen": {
+      "commandName": "Project",
+      "dotnetRunMessages": false,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+  }
+}

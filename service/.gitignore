@@ -1,0 +1,11 @@
+.vs
+.vscode
+MouseAndScreen/bin
+MouseAndScreen/obj
+Frontend/node_modules
+MouseAndScreen.db
+MouseAndScreen.db-shm
+MouseAndScreen.db-wal
+data
+usersprites
+wwwroot
