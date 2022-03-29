@@ -27,7 +27,7 @@ public class SessionHub: Hub
 
     public async Task Join(string session)
     {
-        this.logger.LogDebug($"Join ({session})");
+        this.logger.LogDebug($"Join({session})");
         using var dbContext = await this.dbContextFactory.CreateDbContextAsync(this.Context.ConnectionAborted);
         var dbSession = await dbContext.Sessions
             .Where(e => e.Name == session)
@@ -45,6 +45,13 @@ public class SessionHub: Hub
             .ToArrayAsync(this.Context.ConnectionAborted);
 
         await this.Groups.AddToGroupAsync(this.Context.ConnectionId, session, this.Context.ConnectionAborted);
+        foreach (var sprite in dbPlacedSprites)
+        {
+            await this.Clients.Caller.SendAsync(
+                nameof(SpriteMovedMessage),
+                new SpriteMovedMessage(sprite));
+        }
+
         await this.Clients.All.SendAsync(
             nameof(SessionJoinedMessage),
             new SessionJoinedMessage(this.GetUserId(), session),
