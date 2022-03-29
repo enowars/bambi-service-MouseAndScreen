@@ -2,14 +2,13 @@
 
 public record PlacedSprite
 {
-    public PlacedSprite(long id, long spriteId, long sessionId, long x, long y, string name)
+    public PlacedSprite(long id, long spriteId, long sessionId, long x, long y)
     {
         this.Id = id;
         this.SpriteId = spriteId;
         this.SessionId = sessionId;
         this.X = x;
         this.Y = y;
-        this.Name = name;
     }
 
     public long Id { get; set; }
@@ -25,6 +24,4 @@ public record PlacedSprite
     public long X { get; set; }
 
     public long Y { get; set; }
-
-    public string Name { get; set; }
 }

@@ -23,14 +23,10 @@ export class MainScene extends Scene {
         this.load.image('password', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/key.png');
     }
 
-    private async join(sessionName) {
-        console.log(sessionName);
-        this.connection = await signalr_connect();
-        this.connection.on("SessionJoinedMessage", async function (msg: MASSessionJoinedMessage) {
-            console.log(msg);
+    private join(sessionName) {
+        this.scene.start('ArenaScene', {
+            sessionName: sessionName,
         });
-        await this.connection.send("Join", sessionName);
-        this.scene.start('ArenaScene', this.connection);
     }
 
     protected create() {

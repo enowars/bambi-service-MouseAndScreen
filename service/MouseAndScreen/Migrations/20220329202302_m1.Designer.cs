@@ -11,7 +11,7 @@ using MouseAndScreen.Database;
 namespace MouseAndScreen.Migrations
 {
     [DbContext(typeof(MouseAndScreenDbContext))]
-    [Migration("20220329081840_m1")]
+    [Migration("20220329202302_m1")]
     partial class m1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,15 +25,12 @@ namespace MouseAndScreen.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<long>("OwnerId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Backgrounds");
                 });
@@ -43,10 +40,6 @@ namespace MouseAndScreen.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<long>("SessionId")
                         .HasColumnType("INTEGER");
@@ -92,10 +85,6 @@ namespace MouseAndScreen.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<long>("OwnerId")
                         .HasColumnType("INTEGER");
 
@@ -126,6 +115,17 @@ namespace MouseAndScreen.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MouseAndScreen.Database.Models.Background", b =>
+                {
+                    b.HasOne("MouseAndScreen.Database.Models.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("MouseAndScreen.Database.Models.PlacedSprite", b =>

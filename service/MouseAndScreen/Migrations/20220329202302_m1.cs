@@ -10,20 +10,6 @@ namespace MouseAndScreen.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Backgrounds",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Url = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Backgrounds", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Sessions",
                 columns: table => new
                 {
@@ -51,12 +37,30 @@ namespace MouseAndScreen.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Backgrounds",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    OwnerId = table.Column<long>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Backgrounds", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Backgrounds_Users_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Sprites",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
                     OwnerId = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -79,8 +83,7 @@ namespace MouseAndScreen.Migrations
                     SpriteId = table.Column<long>(type: "INTEGER", nullable: false),
                     SessionId = table.Column<long>(type: "INTEGER", nullable: false),
                     X = table.Column<long>(type: "INTEGER", nullable: false),
-                    Y = table.Column<long>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Y = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -98,6 +101,11 @@ namespace MouseAndScreen.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Backgrounds_OwnerId",
+                table: "Backgrounds",
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sessions_Name",

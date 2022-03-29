@@ -2,16 +2,15 @@
 
 public record Background
 {
-    public Background(long id, string name, string url)
+    public Background(long id, long ownerId)
     {
         this.Id = id;
-        this.Name = name;
-        this.Url = url;
+        this.OwnerId = ownerId;
     }
 
     public long Id { get; set; }
 
-    public string Name { get; set; }
+    public long OwnerId { get; set; }
 
-    public string Url { get; set; }
+    public virtual User? Owner { get; set; }
 }

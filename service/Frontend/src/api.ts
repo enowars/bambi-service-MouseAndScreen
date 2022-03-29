@@ -7,7 +7,6 @@ export interface MASSessionJoinedMessage {
 
 export interface MASSpriteMovedMessage {
     placedSpriteId: number,
-    name: string,
     url: string,
     x: number,
     y: number,
@@ -19,7 +18,15 @@ export interface MASAvailableSpritesMessage {
 
 export interface MASSprite {
     id: number,
-    name: string,
+    url: string,
+}
+
+export interface MASAvailableBackgroundsMessage {
+    ownBackgrounds: MASBackground[]
+}
+
+export interface MASBackground {
+    id: number,
     url: string,
 }
 
@@ -61,6 +68,11 @@ export async function rest_login(username: string, password: string) {
 
 export async function rest_sprites(): Promise<MASAvailableSpritesMessage> {
     const response = await fetch("/api/resources/sprites")
+    return await response.json()
+}
+
+export async function rest_backgrounds(): Promise<MASAvailableBackgroundsMessage> {
+    const response = await fetch("/api/resources/backgrounds")
     return await response.json()
 }
 

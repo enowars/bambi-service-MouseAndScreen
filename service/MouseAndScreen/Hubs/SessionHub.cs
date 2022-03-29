@@ -49,7 +49,8 @@ public class SessionHub: Hub
         {
             await this.Clients.Caller.SendAsync(
                 nameof(SpriteMovedMessage),
-                new SpriteMovedMessage(sprite));
+                new SpriteMovedMessage(sprite),
+                this.Context.ConnectionAborted);
         }
 
         await this.Clients.All.SendAsync(
@@ -83,7 +84,7 @@ public class SessionHub: Hub
         if (sprite == null) throw new ArgumentException("Invalid sprite id");
         if (dbSession == null) throw new ArgumentException("Invalid session");
 
-        var placedSprite = new PlacedSprite(0, spriteId, dbSession.Id, x, y, name);
+        var placedSprite = new PlacedSprite(0, spriteId, dbSession.Id, x, y);
         dbContext.SpritePositions.Add(placedSprite);
         await dbContext.SaveChangesAsync(this.Context.ConnectionAborted);
 

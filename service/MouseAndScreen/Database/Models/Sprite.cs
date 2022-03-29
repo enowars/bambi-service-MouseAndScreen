@@ -2,16 +2,13 @@
 
 public record Sprite
 {
-    public Sprite(long id, string name, long ownerId)
+    public Sprite(long id, long ownerId)
     {
         this.Id = id;
-        this.Name = name;
         this.OwnerId = ownerId;
     }
 
     public long Id { get; set; }
-
-    public string Name { get; set; }
 
     public long OwnerId { get; set; }
 

@@ -4,7 +4,7 @@ import { IConfig } from "phaser3-rex-plugins/plugins/behaviors/textedit/Edit";
 import { EaseMoveToDestroy } from "phaser3-rex-plugins/plugins/easemove";
 import Label from "phaser3-rex-plugins/templates/ui/label/Label";
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
-import { MASSprite, MASSpriteMovedMessage, rest_sprites } from "../api";
+import { MASBackground, MASSessionJoinedMessage, MASSprite, MASSpriteMovedMessage, rest_sprites, signalr_connect } from "../api";
 
 const COLOR_PRIMARY = 0x4e342e;
 const COLOR_LIGHT = 0x7b5e57;
@@ -30,6 +30,7 @@ export class ArenaSprite extends GameObjects.Sprite {
 export class ArenaScene extends Scene {
     rexUI?: RexUIPlugin;
     availableSprites: MASSprite[];
+    availableBackground: MASBackground[];
     connection?: HubConnection;
     placedSprites: Map<number, ArenaSprite>;
     session?: string;
@@ -38,6 +39,7 @@ export class ArenaScene extends Scene {
         super({ key: "ArenaScene" });
         const that = this;
         this.availableSprites = [];
+        this.availableBackground = [];
         this.placedSprites = new Map();
     }
 
@@ -55,12 +57,17 @@ export class ArenaScene extends Scene {
         console.log("ArenaScene.preload");
     }
 
-    protected async init(data: HubConnection) {
+    protected async init(data) {
+        console.log('init', data);
         const that = this;
-        this.connection = data;
-        this.session = "";
-        (window as any).globalConnection = data;
-        data.on("SpriteMovedMessage", async(msg: MASSpriteMovedMessage) => {
+        this.session = data.sessionName;
+        console.log("Connection to session " + this.session);
+        this.connection = await signalr_connect();
+        (window as any).globalConnection = this.connection;
+        this.connection.on("SessionJoinedMessage", async function (msg: MASSessionJoinedMessage) {
+            console.log(msg);
+        });
+        this.connection.on("SpriteMovedMessage", async(msg: MASSpriteMovedMessage) => {
             if (msg.placedSpriteId in this.placedSprites) {
                 console.log("moving placed sprite " + msg.placedSpriteId);
                 const sprite: ArenaSprite = this.placedSprites[msg.placedSpriteId];
@@ -75,7 +82,6 @@ export class ArenaScene extends Scene {
                 await loaded;
                 const t = new ArenaSprite(that, {
                     id: msg.placedSpriteId,
-                    name: msg.name,
                     url: msg.url
                 }, msg.x, msg.y);
 
@@ -86,19 +92,18 @@ export class ArenaScene extends Scene {
                 that.placedSprites[msg.placedSpriteId] = t;
             }
         });
-
         this.input.on('drag', (_pointer: Phaser.Input.Pointer, gameObject: ArenaSprite, dragX: number, dragY: number) => {
             if (gameObject.masDraggable) {
                 gameObject.x = dragX;
                 gameObject.y = dragY;
             }
-            
         });
         this.input.on('dragend', async function (_pointer: Phaser.Input.Pointer, gameObject: ArenaSprite) {
             if (gameObject.masDraggable) {
                 await that.sendSpriteMoved(gameObject);
             }
         });
+        await this.connection.send("Join", this.session);
     }
 
     private loadedPromise() {
@@ -112,7 +117,6 @@ export class ArenaScene extends Scene {
 
     protected async create() {
         console.log("create ArenaScene");
-        this.load.image('car', 'http://localhost/usersprites/1.png');
         const that = this;
         this.availableSprites = (await rest_sprites()).ownSprites;
 
@@ -226,7 +230,63 @@ export class ArenaScene extends Scene {
                 this.createSpritesGrid(), // child
                 { expand: true }
             )
+            .add(
+                this.createBackgroundsGrid(), // child
+                { expand: true }
+            )
         return sizer;
+    }
+
+    private createBackgroundsGrid() {
+        var title = this.rexUI!.add.label({
+            orientation: 'x',
+            text: this.add.text(0, 0, "Available Backgrounds"),
+        });
+
+        var table = this.rexUI!.add.gridSizer({
+            column: Math.max(1, this.availableBackground.length),
+            row: 1,
+            rowProportions: 1,
+            space: { column: 10, row: 10 },
+            name: SPRITES_CONTAINER_NAME,
+        });
+
+        var i = 0;
+        for (let item of this.availableBackground) {
+            table.add(
+                this.createIcon(item),
+                undefined,
+                true,
+                'top',
+                0,
+                true);
+            i += 1;
+        }
+
+        var container = this.rexUI!.add.sizer({
+            orientation: 'y',
+            space: { left: 10, right: 10, top: 10, bottom: 10, item: 10 },
+            width: 100,
+            height: 100,
+        })
+            .addBackground(
+                this.rexUI!.add.roundRectangle(0, 0, 0, 0, 0).setStrokeStyle(2, 0xff0000, 1)
+            )
+            .add(
+                title, // child
+                0, // proportion
+                'left', // align
+                0, // paddingConfig
+                true // expand
+            )
+            .add(table, // child
+                1, // proportion
+                'center', // align
+                0, // paddingConfig
+                true // expand
+            );
+
+        return container;
     }
 
     private createSpritesGrid() {
@@ -288,14 +348,5 @@ export class ArenaScene extends Scene {
         i['customData'] = sprite;
         i['customDataType'] = ADD_SPRITE_ACTION
         return i;
-        var label = this.rexUI!.add.label({
-            orientation: 'y',
-            icon: i,
-            text: this.add.text(0, 0, sprite.name),
-            space: { icon: 3 }
-        });
-        
-        
-        return label;
     };
 }
