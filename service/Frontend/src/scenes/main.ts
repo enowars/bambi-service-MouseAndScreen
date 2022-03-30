@@ -18,7 +18,6 @@ export class MainScene extends Scene {
 
     protected preload() {
         this.load.image("environment", "assets/background.png");
-        this.load.html('nameform', 'assets/text/nameform.html');
         this.load.image('user', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/person.png');
         this.load.image('password', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/key.png');
     }

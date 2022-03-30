@@ -2,7 +2,7 @@
 
 namespace MouseAndScreen.Messages;
 
-public record AvailableBackgroundsMessage(AvailableBackground[] OwnSprites);
+public record AvailableBackgroundsMessage(AvailableBackground[] OwnBackgrounds);
 
 public record AvailableBackground(long Id, string Url)
 {

@@ -29,6 +29,7 @@ namespace MouseAndScreen.Controllers
         [HttpPost]
         public async Task<IActionResult> Sprite([FromForm] IFormFile file)
         {
+            this.logger.LogDebug($"Sprite()");
             var userId = GetUserId();
             if (userId == null)
             {
@@ -65,6 +66,7 @@ namespace MouseAndScreen.Controllers
         [HttpPost]
         public async Task<IActionResult> Background([FromForm] IFormFile file)
         {
+            this.logger.LogDebug($"Background()");
             var userId = GetUserId();
             if (userId == null)
             {
@@ -74,7 +76,7 @@ namespace MouseAndScreen.Controllers
             var background = new Background(0, userId.Value);
             this.dbContext.Backgrounds.Add(background);
             await this.dbContext.SaveChangesAsync(this.HttpContext.RequestAborted);
-            using var fs = new FileStream($"wwwroot/usersprites/{background.Id}", FileMode.Create);
+            using var fs = new FileStream($"wwwroot/backgrounds/{background.Id}", FileMode.Create);
             await file.CopyToAsync(fs, this.HttpContext.RequestAborted);
             return this.NoContent();
         }

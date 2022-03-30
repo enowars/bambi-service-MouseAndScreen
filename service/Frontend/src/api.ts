@@ -12,8 +12,13 @@ export interface MASSpriteMovedMessage {
     y: number,
 }
 
+export interface MASBackgroundChangedMessage {
+    session: string,
+    newBackgroundUrl: string,
+}
+
 export interface MASAvailableSpritesMessage {
-    ownSprites: MASSprite[]
+    ownSprites: MASSprite[],
 }
 
 export interface MASSprite {
