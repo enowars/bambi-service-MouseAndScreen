@@ -1,5 +1,5 @@
 import { MASBackground, MASSprite, rest_backgrounds, rest_sprites } from "../api";
-import { COLOR_DARK, COLOR_LIGHT, COLOR_PRIMARY } from "../util";
+import { COLOR_DARK, COLOR_LIGHT, COLOR_PRIMARY, createTextObject } from "../util";
 import { ArenaScene } from "./arena";
 
 const UPLOAD_SPRITE_BUTTON_TEXT: string = 'Upload Sprite';
@@ -57,7 +57,8 @@ export async function createArenaUI(scene: ArenaScene) {
     spriteButtons
         .on('button.click', async function (button) {
             console.log("spriteButtons click", button);
-            await scene.placeSprite(button.masSprite);
+            var name = prompt("Unit Name?");
+            await scene.sendPlaceSprite(button.masSprite, name as string);
         });
 
     // Available backgrounds
@@ -69,7 +70,7 @@ export async function createArenaUI(scene: ArenaScene) {
     });
     backgroundButtons
         .on('button.click', async function (button) {
-            await scene.selectBackground(button.masBackground);
+            await scene.sendSelectBackground(button.masBackground);
         });
 
     // Inner panel
@@ -132,9 +133,3 @@ function createTextButton(scene: ArenaScene, title: string) {
     return label;
 }
 
-function createTextObject(scene: ArenaScene, text: string) {
-    var textObject = scene.add.text(0, 0, text, {
-        fontSize: '20px'
-    })
-    return textObject;
-}

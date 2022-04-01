@@ -84,7 +84,7 @@ public class SessionHub: Hub
         if (sprite == null) throw new ArgumentException("Invalid sprite id");
         if (dbSession == null) throw new ArgumentException("Invalid session");
 
-        var placedSprite = new PlacedSprite(0, spriteId, dbSession.Id, x, y);
+        var placedSprite = new PlacedSprite(0, name, spriteId, dbSession.Id, x, y);
         dbContext.SpritePositions.Add(placedSprite);
         await dbContext.SaveChangesAsync(this.Context.ConnectionAborted);
 

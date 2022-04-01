@@ -6,7 +6,7 @@ import Label from "phaser3-rex-plugins/templates/ui/label/Label";
 import ScrollablePanel from "phaser3-rex-plugins/templates/ui/scrollablepanel/ScrollablePanel";
 import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 import { MASBackground, MASBackgroundChangedMessage, MASSessionJoinedMessage, MASSprite, MASSpriteMovedMessage, rest_sprites, signalr_connect } from "../api";
-import { COLOR_DARK, COLOR_LIGHT, COLOR_PRIMARY } from "../util";
+import { COLOR_DARK, COLOR_LIGHT, COLOR_PRIMARY, createTextObject } from "../util";
 import { createArenaUI } from "./arena.create";
 
 const SPRITES_CONTAINER_NAME = "spritesgrid"
@@ -19,12 +19,22 @@ const UPLOAD_BACKGROUND_ACTION = "UploadMASBackground"
 export class ArenaSprite extends GameObjects.Sprite {
     masSprite: MASSprite;
     masDraggable: boolean = true;
+    nameObject: GameObjects.Text;
 
     constructor(scene: ArenaScene, masSprite: MASSprite, x: number, y: number) {
         super(scene, x, y, masSprite.url, 0);
-        this.masSprite = masSprite
+        this.masSprite = masSprite;
+        this.nameObject = createTextObject(scene, masSprite.name);;
         this.setInteractive();
+        this.moveArenaSprite(x, y);
         scene.input.setDraggable(this);
+    }
+
+    public moveArenaSprite(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+        this.nameObject.x = x - (this.nameObject.width/2);
+        this.nameObject.y = y - 75;
     }
 }
 
@@ -65,24 +75,24 @@ export class ArenaScene extends Scene {
         input.type = 'file';
         input.onchange = async (e: any)=> { 
             var file = e.target.files[0];
-            var data = new FormData()
+            var data = new FormData();
             data.append('file', file)
             var resp = await fetch('/api/resources/background', {
                 method: 'POST',
-                body: data
+                body: data,
             })
             await resp.text();
         }
         input.click();
     }
 
-    public async placeSprite(sprite: MASSprite) {
-        console.log("placeSprite() (" + sprite.url + ")");
-        this.connection!.send("PlaceSprite", this.session, sprite.id, "TODOREMOVE", 200, 200);
+    public async sendPlaceSprite(sprite: MASSprite, name: string) {
+        console.log("sendPlaceSprite() (" + sprite.url + ")");
+        this.connection!.send("PlaceSprite", this.session, sprite.id, name, 200, 200);
     }
 
-    public async selectBackground(background: MASBackground) {
-        console.log("selectBackground() (" + background.url + ")");
+    public async sendSelectBackground(background: MASBackground) {
+        console.log("sendSelectBackground() (" + background.url + ")");
         this.connection!.send("SelectBackground", this.session, background.url);
     }
 
@@ -112,8 +122,7 @@ export class ArenaScene extends Scene {
             if (msg.placedSpriteId in this.placedSprites) {
                 console.log("moving placed sprite " + msg.placedSpriteId);
                 const sprite: ArenaSprite = this.placedSprites[msg.placedSpriteId];
-                sprite.x = msg.x;
-                sprite.y = msg.y;
+                sprite.moveArenaSprite(msg.x, msg.y);
                 sprite.update();
             } else {
                 console.log("adding placed sprite " + msg.placedSpriteId);
@@ -122,12 +131,15 @@ export class ArenaScene extends Scene {
                 that.load.start();
                 await loaded;
                 const t = new ArenaSprite(that, {
-                    id: msg.placedSpriteId,
-                    url: msg.url
-                }, msg.x, msg.y);
+                        id: msg.placedSpriteId,
+                        name: msg.name,
+                        url: msg.url,
+                    },
+                    msg.x,
+                    msg.y);
                 t.displayWidth = 100;
                 t.displayHeight = 100;
-                that.add.existing(t);
+                this.add.existing(t);
                 that.placedSprites[msg.placedSpriteId] = t;
             }
         });

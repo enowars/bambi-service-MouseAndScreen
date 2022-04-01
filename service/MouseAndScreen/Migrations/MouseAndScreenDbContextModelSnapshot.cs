@@ -39,6 +39,10 @@ namespace MouseAndScreen.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("SessionId")
                         .HasColumnType("INTEGER");
 

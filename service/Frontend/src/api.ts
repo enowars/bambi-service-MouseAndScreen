@@ -7,6 +7,7 @@ export interface MASSessionJoinedMessage {
 
 export interface MASSpriteMovedMessage {
     placedSpriteId: number,
+    name: string,
     url: string,
     x: number,
     y: number,
@@ -23,6 +24,7 @@ export interface MASAvailableSpritesMessage {
 
 export interface MASSprite {
     id: number,
+    name: string,
     url: string,
 }
 

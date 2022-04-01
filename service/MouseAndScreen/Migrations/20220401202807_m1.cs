@@ -80,6 +80,7 @@ namespace MouseAndScreen.Migrations
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
                     SpriteId = table.Column<long>(type: "INTEGER", nullable: false),
                     SessionId = table.Column<long>(type: "INTEGER", nullable: false),
                     X = table.Column<long>(type: "INTEGER", nullable: false),

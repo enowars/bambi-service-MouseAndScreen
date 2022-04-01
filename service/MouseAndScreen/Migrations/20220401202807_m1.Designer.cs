@@ -11,7 +11,7 @@ using MouseAndScreen.Database;
 namespace MouseAndScreen.Migrations
 {
     [DbContext(typeof(MouseAndScreenDbContext))]
-    [Migration("20220329202302_m1")]
+    [Migration("20220401202807_m1")]
     partial class m1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,10 @@ namespace MouseAndScreen.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<long>("SessionId")
                         .HasColumnType("INTEGER");

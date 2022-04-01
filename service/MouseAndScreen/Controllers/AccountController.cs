@@ -34,7 +34,7 @@ namespace MouseAndScreen.Controllers
 
             if (user == null)
             {
-                return this.NotFound();
+                return this.Unauthorized();
             }
             else if (Hash(password).SequenceEqual(user.PasswordHash))
             {
