@@ -9,12 +9,6 @@ import { MASBackground, MASBackgroundChangedMessage, MASSessionJoinedMessage, MA
 import { COLOR_DARK, COLOR_LIGHT, COLOR_PRIMARY, createTextObject } from "../util";
 import { createArenaUI } from "./arena.create";
 
-const SPRITES_CONTAINER_NAME = "spritesgrid"
-const UPLOAD_SPRITE_NAME = "uploadsprite"
-const ADD_SPRITE_ACTION = "AddMASSprite"
-const UPLOAD_SPRITE_ACTION = "UploadMASSprite"
-const UPLOAD_BACKGROUND_ACTION = "UploadMASBackground"
-
 
 export class ArenaSprite extends GameObjects.Sprite {
     masSprite: MASSprite;
@@ -66,6 +60,7 @@ export class ArenaScene extends Scene {
                 body: data
             })
             await resp.text();
+            this.scene.restart();
         }
         input.click();
     }
@@ -82,6 +77,7 @@ export class ArenaScene extends Scene {
                 body: data,
             })
             await resp.text();
+            this.scene.restart();
         }
         input.click();
     }
@@ -113,6 +109,9 @@ export class ArenaScene extends Scene {
         console.log('init', data);
         const that = this;
         this.session = data.sessionName;
+        this.availableSprites = [];
+        this.availableBackgrounds = [];
+        this.placedSprites = new Map();
         this.connection = await signalr_connect();
         (window as any).globalConnection = this.connection;
         this.connection.on("SessionJoinedMessage", async function (msg: MASSessionJoinedMessage) {
