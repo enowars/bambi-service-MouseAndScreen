@@ -112,6 +112,7 @@ export class ArenaScene extends Scene {
         this.availableSprites = [];
         this.availableBackgrounds = [];
         this.placedSprites = new Map();
+        await this.connection?.stop();
         this.connection = await signalr_connect();
         (window as any).globalConnection = this.connection;
         this.connection.on("SessionJoinedMessage", async function (msg: MASSessionJoinedMessage) {
