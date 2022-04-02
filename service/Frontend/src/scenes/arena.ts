@@ -161,6 +161,7 @@ export class ArenaScene extends Scene {
             if (gameObject.masDraggable) {
                 gameObject.x = dragX;
                 gameObject.y = dragY;
+                this.sendSpriteMoved(gameObject)
             }
         });
         this.input.on('dragend', async function (_pointer: Phaser.Input.Pointer, gameObject: ArenaSprite) {
