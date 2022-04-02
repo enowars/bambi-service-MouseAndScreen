@@ -4,9 +4,10 @@ services:
   mouseandscreen:
     build: .
     ports:
-      - "80:80"
+      - "5005:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
     volumes:
       - "./data:/app/data"
       - "./usersprites:/app/wwwroot/usersprites"
+      - "./backgrounds:/app/wwwroot/backgrounds"
