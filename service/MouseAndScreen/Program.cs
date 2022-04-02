@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using MouseAndScreen.Database;
@@ -38,6 +39,9 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
     endpoints.MapHub<SessionHub>("/hubs/session");
 });
+var rewrite = new RewriteOptions()
+    .AddRewrite("^$", "/index.html", true);
+app.UseRewriter(rewrite);
 app.UseStaticFiles(new StaticFileOptions()
 {
     ServeUnknownFileTypes = true,
