@@ -54,7 +54,7 @@ namespace MouseAndScreen.Controllers
                     .Where(e => e.OwnerId == userId)
                     .OrderByDescending(e => e.Id)
                     .Take(100)
-                    .Select(e => new AvailableSprite(e.Id, $"/usersprites/{e.Id}"))
+                    .Select(e => new AvailableSprite(e.Id, e.Name, $"/usersprites/{e.Id}"))
                     .ToArrayAsync(this.HttpContext.RequestAborted);
 
                 return new AvailableSpritesMessage(ownSprites);
