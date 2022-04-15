@@ -27,16 +27,16 @@ namespace MouseAndScreen.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Sprite([FromForm] IFormFile file)
+        public async Task<IActionResult> Sprite([FromForm] IFormFile file, string name)
         {
-            this.logger.LogDebug($"Sprite()");
+            this.logger.LogDebug($"Sprite({name})");
             var userId = GetUserId();
             if (userId == null)
             {
                 return this.Unauthorized();
             }
 
-            var sprite = new Sprite(0, userId.Value);
+            var sprite = new Sprite(0, userId.Value, name);
             this.dbContext.Sprites.Add(sprite);
             await this.dbContext.SaveChangesAsync(this.HttpContext.RequestAborted);
             using var fs = new FileStream($"wwwroot/usersprites/{sprite.Id}", FileMode.Create);

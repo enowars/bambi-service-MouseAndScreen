@@ -42,14 +42,15 @@ public class SessionHub: Hub
 
         var dbPlacedSprites = await dbContext.SpritePositions
             .Where(e => e.SessionId == dbSession.Id)
+            .Include(e => e.Sprite)
             .ToArrayAsync(this.Context.ConnectionAborted);
 
         await this.Groups.AddToGroupAsync(this.Context.ConnectionId, session, this.Context.ConnectionAborted);
-        foreach (var sprite in dbPlacedSprites)
+        foreach (var placedSprite in dbPlacedSprites)
         {
             await this.Clients.Caller.SendAsync(
                 nameof(SpriteMovedMessage),
-                new SpriteMovedMessage(sprite),
+                new SpriteMovedMessage(placedSprite, placedSprite.Sprite.Name),
                 this.Context.ConnectionAborted);
         }
 
@@ -90,7 +91,7 @@ public class SessionHub: Hub
 
         await this.Clients.Group(session).SendAsync(
             nameof(SpriteMovedMessage),
-            new SpriteMovedMessage(placedSprite),
+            new SpriteMovedMessage(placedSprite, sprite.Name),
             this.Context.ConnectionAborted);
     }
 
@@ -110,7 +111,7 @@ public class SessionHub: Hub
 
         await this.Clients.Group(session).SendAsync(
             nameof(SpriteMovedMessage),
-            new SpriteMovedMessage(dbSpritePosition),
+            new SpriteMovedMessage(dbSpritePosition, dbSpritePosition.Sprite!.Name),
             this.Context.ConnectionAborted);
     }
 

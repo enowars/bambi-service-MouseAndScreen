@@ -54,7 +54,8 @@ export class ArenaScene extends Scene {
         input.onchange = async (e: any)=> { 
             var file = e.target.files[0];
             var data = new FormData()
-            data.append('file', file)
+            data.append('file', file);
+            data.append("name", "somename") // TODO
             var resp = await fetch('/api/resources/sprite', {
                 method: 'POST',
                 body: data

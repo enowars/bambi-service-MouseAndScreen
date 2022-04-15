@@ -87,6 +87,10 @@ namespace MouseAndScreen.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("OwnerId")
                         .HasColumnType("INTEGER");
 
