@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  checker:
+    build: .
+    ports:
+      - "5006:80"
+    restart: unless-stopped
+  mongo:
+    image: mongo:latest
+    restart: unless-stopped
