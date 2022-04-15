@@ -1,7 +1,7 @@
 import { HubConnection, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 
 export interface MASSessionJoinedMessage {
-    userId: string,
+    username: string,
     session: string
 }
 

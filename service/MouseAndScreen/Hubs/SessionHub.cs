@@ -55,7 +55,7 @@ public class SessionHub: Hub
 
         await this.Clients.All.SendAsync(
             nameof(SessionJoinedMessage),
-            new SessionJoinedMessage(this.GetUserId(), session),
+            new SessionJoinedMessage(this.GetUsername()!, session),
             this.Context.ConnectionAborted);
     }
 
@@ -125,5 +125,10 @@ public class SessionHub: Hub
         {
             return null;
         }
+    }
+
+    private string? GetUsername()
+    {
+        return this.Context.User?.FindFirst(ClaimTypes.Name)?.Value;
     }
 }

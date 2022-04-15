@@ -38,7 +38,7 @@ namespace MouseAndScreen.Controllers
             }
             else if (Hash(password).SequenceEqual(user.PasswordHash))
             {
-                await this.SignIn(user.Id);
+                await this.SignIn(user.Id, username);
                 return this.NoContent();
             }
             else
@@ -55,16 +55,17 @@ namespace MouseAndScreen.Controllers
             this.dbContext.Users.Add(user);
 
             await this.dbContext.SaveChangesAsync(this.HttpContext.RequestAborted);
-            await this.SignIn(user.Id);
+            await this.SignIn(user.Id, username);
             
             return NoContent();
         }
 
-        private async Task SignIn(long userId)
+        private async Task SignIn(long userId, string username)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Name, username),
             };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
