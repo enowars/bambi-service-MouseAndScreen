@@ -6,8 +6,8 @@ public record SpriteMovedMessage(long PlacedSpriteId, string Name, string Sprite
 {
     public SpriteMovedMessage(PlacedSprite placedSprite, string spriteName) : this(
         placedSprite.Id,
-        spriteName,
         placedSprite.Name,
+        spriteName,
         $"/usersprites/{placedSprite.SpriteId}",
         placedSprite.X,
         placedSprite.Y)
