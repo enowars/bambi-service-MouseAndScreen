@@ -4,8 +4,10 @@ services:
   checker:
     build: .
     ports:
-      - "5006:80"
+      - "5006:8000"
     restart: unless-stopped
+    environment:
+      - MONGO_HOST=mongo
   mongo:
     image: mongo:latest
     restart: unless-stopped
