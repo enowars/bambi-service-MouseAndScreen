@@ -41,7 +41,7 @@ namespace MouseAndScreen.Controllers
             await this.dbContext.SaveChangesAsync(this.HttpContext.RequestAborted);
             using var fs = new FileStream($"wwwroot/usersprites/{sprite.Id}", FileMode.Create);
             await file.CopyToAsync(fs, this.HttpContext.RequestAborted);
-            return this.Ok(sprite.Id);
+            return this.NoContent();
         }
 
         [HttpGet]
@@ -78,7 +78,7 @@ namespace MouseAndScreen.Controllers
             await this.dbContext.SaveChangesAsync(this.HttpContext.RequestAborted);
             using var fs = new FileStream($"wwwroot/backgrounds/{background.Id}", FileMode.Create);
             await file.CopyToAsync(fs, this.HttpContext.RequestAborted);
-            return this.Ok(background.Id);
+            return this.NoContent();
         }
 
         [HttpGet]
