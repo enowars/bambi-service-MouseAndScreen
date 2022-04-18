@@ -16,7 +16,11 @@ Flags are stored in 4 different locations:
 - The content of a sprite (for your convenience they are .svg files :))
 - The name of a session
 
-There are 4 distinct vulnerabilities. Every vulnerability might give access to more than one flagstore. Good luck!`)
+There are 4 distinct vulnerabilities. Every vulnerability might give access to more than one flagstore.
+
+Attack info (aka flag hints) is available at https://bambi.enoflag.de/scoreboard/attack.json.
+
+Good luck!`)
     const game: Game = new Game({
         type: Phaser.AUTO,
         parent: 'phaser-example',
