@@ -6,6 +6,17 @@ import { ArenaScene } from "./scenes/arena";
 
 window.onload = () => {
     window.focus();
+    alert(`Welcome to MouseAndScreen, your pandemic friendly pen and paper replacement!
+
+For your convenience, an openapi interface is available at /swagger/index.html.
+
+Flags are stored in 4 different locations:
+- The name of a sprite
+- The name of a placed sprite (i.e. a unit on the game board)
+- The content of a sprite (for your convenience they are .svg files :))
+- The name of a session
+
+There are 4 distinct vulnerabilities. Every vulnerability might give access to more than one flagstore. Good luck!`)
     const game: Game = new Game({
         type: Phaser.AUTO,
         parent: 'phaser-example',
