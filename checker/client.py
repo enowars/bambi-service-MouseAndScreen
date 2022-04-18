@@ -139,27 +139,19 @@ class MouseAndScreenClient():
         await self.signalRClient.start()
         return hub
 
-    async def upload_sprite(self, name: str, file_content: str) -> int:
+    async def upload_sprite(self, name: str, file_content: str) -> None:
         # fileupload how?
         upload_result = await self.http_client.post("/api/resources/sprite", params={"name": name}, files={"file": file_content})
-        if upload_result.status_code != 200:
+        if upload_result.status_code != 204:
             self.logger.warn(f"Failed to upload sprite ({upload_result.status_code}, {upload_result.text})")
             raise MumbleException("Failed to upload sprite")
-        try:
-            return int(upload_result.text)
-        except:
-            raise MumbleException("POST /api/resources/sprite did not return id")
 
-    async def upload_background(self, file_content) -> int:
+    async def upload_background(self, file_content) -> None:
         # fileupload how?
         upload_result = await self.http_client.post("/api/resources/background", files={"file": file_content})
-        if upload_result.status_code != 200:
+        if upload_result.status_code != 204:
             self.logger.warn(f"Failed to upload background ({upload_result.status_code}, {upload_result.text})")
             raise MumbleException("Failed to upload background")
-        try:
-            return int(upload_result.text)
-        except:
-            raise MumbleException("POST /api/resources/background did not return id")
 
     async def get_sprites(self):
         result = await self.http_client.get("/api/resources/sprites")
