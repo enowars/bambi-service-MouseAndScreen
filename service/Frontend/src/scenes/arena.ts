@@ -59,8 +59,7 @@ export class ArenaScene extends Scene {
             if (!name) {
                 return;
             }
-            data.append("name", name);
-            var resp = await fetch('/api/resources/sprite', {
+            var resp = await fetch('/api/resources/sprite?name='+name, {
                 method: 'POST',
                 body: data
             })
