@@ -18,7 +18,7 @@ Flags are stored in 4 different locations:
 
 There are 4 distinct vulnerabilities. Every vulnerability might give access to more than one flagstore.
 
-Attack info (aka flag hints) is available at https://bambi.enoflag.de/scoreboard/attack.json.
+Attack info (aka flag hints) is available at https://bambi.enoflag.de/scoreboard/attack.json. These make exploiting this service significantly easier, so use them!
 
 Good luck!`)
     const game: Game = new Game({
