@@ -187,7 +187,6 @@ async def getflag_test(
         raise MumbleException("Putflag failed")
     
     async with MouseAndScreenClient(task, username0, username0, logger) as client0:
-        await client0.register()
         await client0.login()
         hub0 = await client0.enter_signalr_conn(task.address)
         await hub0.join_session(session_name)
