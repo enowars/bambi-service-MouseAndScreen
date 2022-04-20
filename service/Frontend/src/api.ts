@@ -16,6 +16,7 @@ export interface MASSpriteMovedMessage {
 export interface MASBackgroundChangedMessage {
     session: string,
     newBackgroundUrl: string,
+    name: string,
 }
 
 export interface MASAvailableSpritesMessage {

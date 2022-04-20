@@ -124,7 +124,7 @@ export class ArenaScene extends Scene {
         this.connection = await signalr_connect();
         (window as any).globalConnection = this.connection;
         this.connection.on("SessionJoinedMessage", async function (msg: MASSessionJoinedMessage) {
-            console.log(msg);
+            alert(msg.username + "joined the session");
         });
         this.connection.on("SpriteMovedMessage", async(msg: MASSpriteMovedMessage) => {
             if (msg.placedSpriteId in this.placedSprites) {
