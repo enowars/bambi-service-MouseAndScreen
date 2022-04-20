@@ -64,7 +64,7 @@ namespace MouseAndScreen.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Background([FromForm] IFormFile file)
+        public async Task<IActionResult> Background([FromForm] IFormFile file, string name)
         {
             this.logger.LogDebug($"Background()");
             var userId = GetUserId();
@@ -73,7 +73,7 @@ namespace MouseAndScreen.Controllers
                 return this.Unauthorized();
             }
 
-            var background = new Background(0, userId.Value);
+            var background = new Background(0, userId.Value, name);
             this.dbContext.Backgrounds.Add(background);
             await this.dbContext.SaveChangesAsync(this.HttpContext.RequestAborted);
             using var fs = new FileStream($"wwwroot/backgrounds/{background.Id}", FileMode.Create);
@@ -91,7 +91,7 @@ namespace MouseAndScreen.Controllers
                     .Where(e => e.OwnerId == userId)
                     .OrderByDescending(e => e.Id)
                     .Take(100)
-                    .Select(e => new AvailableBackground(e.Id, $"/backgrounds/{e.Id}"))
+                    .Select(e => new AvailableBackground(e.Id, $"/backgrounds/{e.Id}", e.Name))
                     .ToArrayAsync(this.HttpContext.RequestAborted);
 
                 return new AvailableBackgroundsMessage(ownBackgrounds);
