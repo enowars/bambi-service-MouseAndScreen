@@ -54,18 +54,18 @@ public class SessionHub: Hub
                 this.Context.ConnectionAborted);
         }
 
-        await this.Clients.All.SendAsync(
+        await this.Clients.Group(session).SendAsync(
             nameof(SessionJoinedMessage),
             new SessionJoinedMessage(this.GetUsername()!, session),
             this.Context.ConnectionAborted);
     }
 
-    public async Task SelectBackground(string session, string url)
+    public async Task SelectBackground(string session, string url, string name)
     {
-        this.logger.LogDebug($"SelectBackground({session}, {url})");
-        await this.Clients.Group(session).SendAsync(
+        this.logger.LogDebug($"SelectBackground({session}, {url}, {name})");
+        await this.Clients.All.SendAsync(
             nameof(BackgroundChangedMessage),
-            new BackgroundChangedMessage(session, url),
+            new BackgroundChangedMessage(session, url, name),
             this.Context.ConnectionAborted);
     }
 
