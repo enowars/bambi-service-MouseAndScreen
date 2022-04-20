@@ -61,8 +61,8 @@ export class ArenaScene extends Scene {
             }
             var resp = await fetch('/api/resources/sprite?name='+name, {
                 method: 'POST',
-                body: data
-            })
+                body: data,
+            });
             await resp.text();
             this.scene.restart();
         }
@@ -75,11 +75,15 @@ export class ArenaScene extends Scene {
         input.onchange = async (e: any)=> { 
             var file = e.target.files[0];
             var data = new FormData();
-            data.append('file', file)
-            var resp = await fetch('/api/resources/background', {
+            data.append('file', file);
+            var name = prompt("Background Name?");
+            if (!name) {
+                return;
+            }
+            var resp = await fetch('/api/resources/background?name='+name, {
                 method: 'POST',
                 body: data,
-            })
+            });
             await resp.text();
             this.scene.restart();
         }
@@ -93,7 +97,7 @@ export class ArenaScene extends Scene {
 
     public async sendSelectBackground(background: MASBackground) {
         console.log("sendSelectBackground() (" + background.url + ")");
-        this.connection!.send("SelectBackground", this.session, background.url);
+        this.connection!.send("SelectBackground", this.session, background.url, background.name);
     }
 
     public loadedPromise() {

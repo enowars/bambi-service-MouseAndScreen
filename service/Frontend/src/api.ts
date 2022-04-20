@@ -35,6 +35,7 @@ export interface MASAvailableBackgroundsMessage {
 export interface MASBackground {
     id: number,
     url: string,
+    name: string
 }
 
 export async function rest_register(username: string, password: string) {

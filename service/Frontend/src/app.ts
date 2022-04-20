@@ -14,7 +14,7 @@ Flags are stored in 4 different locations:
 - The name of a sprite
 - The name of a placed sprite (i.e. a unit on the game board)
 - The content of a sprite (for your convenience they are .svg files :))
-- The name of a session
+- The name of a background
 
 There are 4 distinct vulnerabilities. Every vulnerability might give access to more than one flagstore.
 
