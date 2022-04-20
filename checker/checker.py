@@ -182,10 +182,10 @@ async def getflag_test(
 ) -> None:
     try:
         session_name = await db.get("session_name")
+        username0 = await db.get("username0")
     except:
         raise MumbleException("Putflag failed")
     
-    username0 = FAKER.name() + str(random.randrange(10, 1000000))
     async with MouseAndScreenClient(task, username0, username0, logger) as client0:
         await client0.register()
         await client0.login()
@@ -353,8 +353,8 @@ async def get_background(client: MouseAndScreenClient, name: str, logger: Logger
                 return background
     except:
         logger.info(f"Invalid response {backgrounds}")
-        raise MumbleException("Invalid response (/api/resources/sprites)")
-    raise MumbleException("Sprite not found (/api/resources/sprites)")
+        raise MumbleException("Invalid response (/api/resources/backgrounds)")
+    raise MumbleException("Sprite not found (/api/resources/backgrounds)")
 
 async def wait_for_joined(hub: Session, username: str, session_name: str, logger: LoggerAdapter):
     while True:
