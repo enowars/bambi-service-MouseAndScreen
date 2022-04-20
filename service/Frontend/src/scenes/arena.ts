@@ -124,7 +124,7 @@ export class ArenaScene extends Scene {
         this.connection = await signalr_connect();
         (window as any).globalConnection = this.connection;
         this.connection.on("SessionJoinedMessage", async function (msg: MASSessionJoinedMessage) {
-            alert(msg.username + "joined the session");
+            alert(msg.username + " joined the session");
         });
         this.connection.on("SpriteMovedMessage", async(msg: MASSpriteMovedMessage) => {
             if (msg.placedSpriteId in this.placedSprites) {
@@ -152,18 +152,19 @@ export class ArenaScene extends Scene {
             }
         });
         this.connection.on("BackgroundChangedMessage", async (msg: MASBackgroundChangedMessage) => {
-            console.log(msg);
-            that.load.image(msg.newBackgroundUrl, msg.newBackgroundUrl);
-            var loaded = this.loadedPromise();
-            that.load.start();
-            await loaded;
-            var bg = that.add.image(
-                that.sys.canvas.width/2,
-                that.sys.canvas.height/2,
-                msg.newBackgroundUrl);
-            bg.displayWidth = that.sys.canvas.width;
-            bg.displayHeight = that.sys.canvas.height;
-            bg.depth = -5000;
+            if (this.session == msg.session) {
+                that.load.image(msg.newBackgroundUrl, msg.newBackgroundUrl);
+                var loaded = this.loadedPromise();
+                that.load.start();
+                await loaded;
+                var bg = that.add.image(
+                    that.sys.canvas.width/2,
+                    that.sys.canvas.height/2,
+                    msg.newBackgroundUrl);
+                bg.displayWidth = that.sys.canvas.width;
+                bg.displayHeight = that.sys.canvas.height;
+                bg.depth = -5000;
+            }
         });
         this.input.on('drag', (_pointer: Phaser.Input.Pointer, gameObject: ArenaSprite, dragX: number, dragY: number) => {
             if (gameObject.masDraggable) {
