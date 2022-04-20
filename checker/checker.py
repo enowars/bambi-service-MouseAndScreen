@@ -31,7 +31,7 @@ from client import MouseAndScreenClient, MessageKind, Session
 from util import svg_with_text
 
 
-FAKER = faker.Faker()
+FAKER = faker.Faker(faker.config.AVAILABLE_LOCALES)
 checker = Enochecker("MouseAndScreen", 5005)
 app = lambda: checker.app
 
@@ -154,7 +154,7 @@ async def getflag_test(
         if not task.flag in response.text:
             raise MumbleException("Flag not found in sprite file")
 
-# Session name
+# Background name
 @checker.putflag(3)
 async def putflag_test(
     task: PutflagCheckerTaskMessage,
@@ -162,42 +162,39 @@ async def putflag_test(
     logger: LoggerAdapter
 ) -> None:
     username0 = FAKER.name() + str(random.randrange(10, 1000000))
-    username1 = FAKER.name() + str(random.randrange(10, 1000000))
-    session_name = task.flag
-    logger.info(f"Creating session '{session_name}' with {username0} and {username1}")
+    session_name = FAKER.catch_phrase() + str(random.randrange(10, 1000000))
+    logger.info(f"Creating session '{session_name}' with {username0}")
     async with MouseAndScreenClient(task, username0, username0, logger) as client0:
         await client0.register()
         await db.set("username0", username0)
+        await db.set("session_name", session_name)
         hub0 = await client0.enter_signalr_conn(task.address)
         await hub0.join_session(session_name)
         await wait_for_joined(hub0, username0, session_name, logger)
-
-        sprite_name = FAKER.name() + str(random.randrange(10, 1000000))
-        placed_sprite_name = FAKER.name() + str(random.randrange(10, 1000000))
-        await db.set("sprite_name", sprite_name)
-        await db.set("placed_sprite_name", placed_sprite_name)
-        await client0.upload_sprite(sprite_name, svg_with_text(FAKER.name()))
-        sprite = await get_sprite(client0, sprite_name, logger)
-        await hub0.place_sprite(session_name, sprite["id"], placed_sprite_name, random.randrange(10, 1000), random.randrange(10, 1000))
-        await wait_for_moved(hub0, placed_sprite_name, sprite["name"], logger)
+        await client0.upload_background(task.flag, svg_with_text(FAKER.name()))
+        background = await get_background(client0, task.flag, logger)
+        await hub0.select_background(session_name, background["url"], task.flag)
+        await wait_for_background(hub0, task.flag, logger)
 
 @checker.getflag(3)
 async def getflag_test(
     task: GetflagCheckerTaskMessage, db: ChainDB, logger: LoggerAdapter
 ) -> None:
     try:
-        username0 = await db.get("username0")
-        sprite_name = await db.get("sprite_name")
-        placed_sprite_name = await db.get("placed_sprite_name")
+        session_name = await db.get("session_name")
     except:
         raise MumbleException("Putflag failed")
     
+    username0 = FAKER.name() + str(random.randrange(10, 1000000))
     async with MouseAndScreenClient(task, username0, username0, logger) as client0:
+        await client0.register()
         await client0.login()
-        sprite = await get_sprite(client0, sprite_name, logger)
         hub0 = await client0.enter_signalr_conn(task.address)
-        await hub0.join_session(task.flag)
-        await asyncio.wait_for(wait_for_moved(hub0, placed_sprite_name, sprite["name"], logger), timeout=1)
+        await hub0.join_session(session_name)
+        await wait_for_joined(hub0, username0, session_name, logger)
+        background = await get_background(client0, task.flag, logger)
+        await hub0.select_background(session_name, background["url"], task.flag)
+        await wait_for_background(hub0, task.flag, logger)
 
 # NOISES
 
@@ -225,7 +222,7 @@ async def getflag_test(
         if flag:
             return flag
 
-# broadcasted session name, get session name (TODO: get placedsprite names)
+# broadcasted session name, get session name (TODO: get placedsprite names) # TODO sniff bgs instead
 @checker.exploit(1)
 async def getflag_test(
     task: ExploitCheckerTaskMessage, logger: LoggerAdapter, searcher: FlagSearcher
@@ -347,6 +344,18 @@ async def get_sprite(client: MouseAndScreenClient, name: str, logger: LoggerAdap
         raise MumbleException("Invalid response (/api/resources/sprites)")
     raise MumbleException("Sprite not found (/api/resources/sprites)")
 
+async def get_background(client: MouseAndScreenClient, name: str, logger: LoggerAdapter):
+    backgrounds = await client.get_backgrounds()
+    try:
+        backgrounds = json.loads(backgrounds)
+        for background in backgrounds["ownBackgrounds"]:
+            if background["name"] == name and isinstance(background["id"], int) and isinstance(background["url"], str):
+                return background
+    except:
+        logger.info(f"Invalid response {backgrounds}")
+        raise MumbleException("Invalid response (/api/resources/sprites)")
+    raise MumbleException("Sprite not found (/api/resources/sprites)")
+
 async def wait_for_joined(hub: Session, username: str, session_name: str, logger: LoggerAdapter):
     while True:
         message = await hub.next_message(MessageKind.SessionJoinedMessage)
@@ -377,6 +386,20 @@ async def wait_for_moved(hub: Session, placedsprite_name: str, sprite_name: str,
         except:
             logger.warn(f"Invalid SpriteMovedMessage '{message}'")
             raise MumbleException("Invalid SpriteMovedMessage")
+
+async def wait_for_background(hub: Session, bg_name: str, logger: LoggerAdapter):
+    while True:
+        message = await hub.next_message(MessageKind.BackgroundChangedMessage)
+        try:
+            received_name = message["name"]
+            if received_name == bg_name:
+                logger.info(f"Received BackgroundChangedMessage {message}")
+                return message
+            else:
+                logger.info(f"Received BackgroundChangedMessage {message}, waiting for next message")
+        except:
+            logger.warn(f"Invalid BackgroundChangedMessage '{message}'")
+            raise MumbleException("Invalid BackgroundChangedMessage")
 
 if __name__ == "__main__":
     checker.run()

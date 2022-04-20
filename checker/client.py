@@ -85,8 +85,8 @@ class Session(Hub):
     async def join_session(self, session_name: str) -> None:
         return await self.invoke("Join", session_name)
     
-    async def select_background(self, session_name: str, url: str) -> None:
-        return await self.invoke("SelectBackground", session_name, url)
+    async def select_background(self, session_name: str, url: str, name: str) -> None:
+        return await self.invoke("SelectBackground", session_name, url, name)
 
     async def place_sprite(self, session_name: str, sprite_id: int, name: str, x: int, y: int) -> None:
         return await self.invoke("PlaceSprite", session_name, sprite_id, name, x, y)
@@ -146,9 +146,9 @@ class MouseAndScreenClient():
             self.logger.warn(f"Failed to upload sprite ({upload_result.status_code}, {upload_result.text})")
             raise MumbleException("Failed to upload sprite")
 
-    async def upload_background(self, file_content) -> None:
+    async def upload_background(self, name: str, file_content) -> None:
         # fileupload how?
-        upload_result = await self.http_client.post("/api/resources/background", files={"file": file_content})
+        upload_result = await self.http_client.post("/api/resources/background", params={"name": name}, files={"file": file_content})
         if upload_result.status_code != 204:
             self.logger.warn(f"Failed to upload background ({upload_result.status_code}, {upload_result.text})")
             raise MumbleException("Failed to upload background")
@@ -156,4 +156,9 @@ class MouseAndScreenClient():
     async def get_sprites(self):
         result = await self.http_client.get("/api/resources/sprites")
         self.logger.debug(f"get_sprites {result.text}")
+        return result.text
+
+    async def get_backgrounds(self):
+        result = await self.http_client.get("/api/resources/backgrounds")
+        self.logger.debug(f"backgrounds {result.text}")
         return result.text
