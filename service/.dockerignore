@@ -8,6 +8,7 @@ MouseAndScreen.db-shm
 MouseAndScreen.db-wal
 data
 usersprites
+backgrounds
 wwwroot
 
 .dockerignore
