@@ -192,8 +192,17 @@ async def getflag_test(
         await hub0.join_session(session_name)
         await wait_for_joined(hub0, username0, session_name, logger)
         background = await get_background(client0, task.flag, logger)
-        await hub0.select_background(session_name, background["url"], task.flag)
-        await wait_for_background(hub0, task.flag, logger)
+
+        username1 = FAKER.name() + str(random.randrange(10, 1000000))
+        async with MouseAndScreenClient(task, username1, username1, logger) as client1:
+            await client1.register()
+            hub1 = await client1.enter_signalr_conn(task.address)
+            await hub1.join_session(session_name)
+            await wait_for_joined(hub0, username1, session_name, logger)
+            await wait_for_joined(hub1, username1, session_name, logger)
+            await hub0.select_background(session_name, background["url"], task.flag)
+            await wait_for_background(hub0, task.flag, logger)
+            await wait_for_background(hub1, task.flag, logger)
 
 # NOISES
 
