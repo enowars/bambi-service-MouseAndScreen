@@ -81,9 +81,9 @@ async def putflag_test(
     logger: LoggerAdapter
 ) -> None:
     username0 = FAKER.name() + str(random.randrange(10, 1000000))
-    password0 = FAKER.name() + str(random.randrange(10, 1000000))
+    password0 = gen_random_str()
     username1 = FAKER.name() + str(random.randrange(10, 1000000))
-    password1 = FAKER.name() + str(random.randrange(10, 1000000))
+    password1 = gen_random_str()
     session_name = FAKER.catch_phrase() + str(random.randrange(10, 1000000))
     logger.info(f"Creating session '{session_name}' with {username0} and {username1}")
     async with MouseAndScreenClient(task, username0, password0, logger) as client0:
@@ -157,7 +157,8 @@ async def putflag_test(
     logger: LoggerAdapter,
 ) -> None:
     username0 = FAKER.name() + str(random.randrange(10, 1000000))
-    async with MouseAndScreenClient(task, username0, username0, logger) as client0:
+    password0 = gen_random_str()
+    async with MouseAndScreenClient(task, username0, password0, logger) as client0:
         await client0.register()
         sprite_name = FAKER.name()
         await client0.upload_sprite(sprite_name, svg_with_text(task.flag))
@@ -191,11 +192,13 @@ async def putflag_test(
     logger: LoggerAdapter
 ) -> None:
     username0 = FAKER.name() + str(random.randrange(10, 1000000))
+    password0 = gen_random_str()
     session_name = FAKER.catch_phrase() + str(random.randrange(10, 1000000))
     logger.info(f"Creating session '{session_name}' with {username0}")
-    async with MouseAndScreenClient(task, username0, username0, logger) as client0:
+    async with MouseAndScreenClient(task, username0, password0, logger) as client0:
         await client0.register()
         await db.set("username0", username0)
+        await db.set("password0", password0)
         await db.set("session_name", session_name)
         hub0 = await client0.enter_signalr_conn(task.address)
         await hub0.join_session(session_name)
@@ -212,10 +215,11 @@ async def getflag_test(
     try:
         session_name = await db.get("session_name")
         username0 = await db.get("username0")
+        password0 = await db.get("password0")
     except:
         raise MumbleException("Putflag failed")
     
-    async with MouseAndScreenClient(task, username0, username0, logger) as client0:
+    async with MouseAndScreenClient(task, username0, password0, logger) as client0:
         await client0.login()
         hub0 = await client0.enter_signalr_conn(task.address)
         await hub0.join_session(session_name)
@@ -223,7 +227,8 @@ async def getflag_test(
         background = await get_background(client0, task.flag, logger)
 
         username1 = FAKER.name() + str(random.randrange(10, 1000000))
-        async with MouseAndScreenClient(task, username1, username1, logger) as client1:
+        password1 = gen_random_str()
+        async with MouseAndScreenClient(task, username1, password1, logger) as client1:
             await client1.register()
             hub1 = await client1.enter_signalr_conn(task.address)
             await hub1.join_session(session_name)
