@@ -2,6 +2,7 @@ from asyncio import StreamReader, StreamWriter
 import asyncio
 import json
 from re import L
+import string
 import time
 import random
 import traceback
@@ -31,9 +32,13 @@ from client import MouseAndScreenClient, MessageKind, Session
 from util import svg_with_text
 
 
+CHARSET = string.ascii_letters + string.digits + "_-"
 FAKER = faker.Faker(faker.config.AVAILABLE_LOCALES)
 checker = Enochecker("MouseAndScreen", 5005)
 app = lambda: checker.app
+
+def gen_random_str(k=16):
+    return ''.join(random.choices(CHARSET, k=k))
 
 # FLAGS
 # Sprite name, placed in no session
@@ -44,10 +49,12 @@ async def putflag_test(
     logger: LoggerAdapter
 ) -> None:
     username0 = FAKER.name() + str(random.randrange(10, 1000000))
-    async with MouseAndScreenClient(task, username0, username0, logger) as client0:
+    password0 = gen_random_str()
+    async with MouseAndScreenClient(task, username0, password0, logger) as client0:
         await client0.register()
         await client0.upload_sprite(task.flag, svg_with_text(FAKER.name()))
         await db.set("username0", username0)
+        await db.set("password0", password0)
         sprite = await get_sprite(client0, task.flag, logger)
         return json.dumps({'spriteId': sprite["id"]})
 
@@ -59,9 +66,10 @@ async def getflag_test(
 ) -> None:
     try:
         username0 = await db.get("username0")
+        password0 = await db.get("password0")
     except:
         raise MumbleException("Putflag failed")
-    async with MouseAndScreenClient(task, username0, username0, logger) as client0:
+    async with MouseAndScreenClient(task, username0, password0, logger) as client0:
         await client0.login()
         sprite = await get_sprite(client0, task.flag, logger)
 
@@ -73,20 +81,24 @@ async def putflag_test(
     logger: LoggerAdapter
 ) -> None:
     username0 = FAKER.name() + str(random.randrange(10, 1000000))
+    password0 = FAKER.name() + str(random.randrange(10, 1000000))
     username1 = FAKER.name() + str(random.randrange(10, 1000000))
+    password1 = FAKER.name() + str(random.randrange(10, 1000000))
     session_name = FAKER.catch_phrase() + str(random.randrange(10, 1000000))
     logger.info(f"Creating session '{session_name}' with {username0} and {username1}")
-    async with MouseAndScreenClient(task, username0, username0, logger) as client0:
+    async with MouseAndScreenClient(task, username0, password0, logger) as client0:
         await client0.register()
         await db.set("username0", username0)
+        await db.set("password0", password0)
         hub0 = await client0.enter_signalr_conn(task.address)
         await hub0.join_session(session_name)
         await db.set("session_name", session_name)
         await wait_for_joined(hub0, username0, session_name, logger)
 
-        async with MouseAndScreenClient(task, username1, username1, logger) as client1:
+        async with MouseAndScreenClient(task, username1, password1, logger) as client1:
             await client1.register()
             await db.set("username1", username1)
+            await db.set("password1", password1)
             hub1 = await client1.enter_signalr_conn(task.address)
             await hub1.join_session(session_name)
             await wait_for_joined(hub1, username1, session_name, logger)
@@ -99,6 +111,7 @@ async def putflag_test(
             await hub0.place_sprite(session_name, sprite["id"], task.flag, random.randrange(10, 1000), random.randrange(10, 1000))
             await wait_for_moved(hub0, task.flag, sprite["name"], logger)
             msg = await wait_for_moved(hub1, task.flag, sprite["name"], logger)
+            await db.set("placedSpriteId", msg["placedSpriteId"])
             return json.dumps({'placedSpriteId': msg["placedSpriteId"]})
 
 @checker.getflag(1)
@@ -109,16 +122,32 @@ async def getflag_test(
 ) -> None:
     try:
         username0 = await db.get("username0")
+        password0 = await db.get("password0")
+        username1 = await db.get("username1")
+        password1 = await db.get("password1")
         session_name = await db.get("session_name")
         sprite_name = await db.get("sprite_name")
+        placed_sprite_id = await db.get("placedSpriteId")
     except:
         raise MumbleException("Putflag failed")
-    async with MouseAndScreenClient(task, username0, username0, logger) as client0:
+    async with MouseAndScreenClient(task, username0, password0, logger) as client0:
         await client0.login()
         sprite = await get_sprite(client0, sprite_name, logger)
         hub0 = await client0.enter_signalr_conn(task.address)
         await hub0.join_session(session_name)
         await asyncio.wait_for(wait_for_moved(hub0, task.flag, sprite["name"], logger), timeout=1.0)
+
+        async with MouseAndScreenClient(task, username1, password1, logger) as client1:
+            await client1.login()
+            hub1 = await client1.enter_signalr_conn(task.address)
+            await hub1.join_session(session_name)
+            await wait_for_joined(hub1, username1, session_name, logger)
+            await wait_for_joined(hub0, username1, session_name, logger)
+            await asyncio.wait_for(wait_for_moved(hub1, task.flag, sprite["name"], logger), timeout=1.0)
+            await hub1.move_sprite(session_name, placed_sprite_id, random.randrange(10, 1000), random.randrange(10, 1000))
+            await asyncio.wait_for(wait_for_moved(hub0, task.flag, sprite["name"], logger), timeout=1.0)
+            await asyncio.wait_for(wait_for_moved(hub1, task.flag, sprite["name"], logger), timeout=1.0)
+
 
 # Sprite file content in no session
 @checker.putflag(2)
