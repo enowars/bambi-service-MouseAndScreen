@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import uuid
 import json
 import requests
 import sys
@@ -47,8 +48,9 @@ def exploit(hint: Optional[str], flag_store: Optional[int]):
 
     hc.start()
     time.sleep(1)
-    hc.send("Join", ["mos0"])
-    hc.send("PlaceSprite", ["mos0", sprite_id, "Kevin", 0, 0])
+    session = str(uuid.uuid1())
+    hc.send("Join", [session])
+    hc.send("PlaceSprite", [session, sprite_id, "Kevin", 0, 0])
     hc.on("SpriteMovedMessage", lambda x: print(x))
     time.sleep(5)
 
